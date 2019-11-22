@@ -3,7 +3,7 @@ Patch, by running patch-source.sh.
 First, build the docker image with build-docker.sh.
 
 Once that's complete, edit run-docker.sh to launch docker on the host port of your choice.
-Currnetly set to 8080.
+Currnetly set to 9090.
 
 run "run-docker.sh". 
 
