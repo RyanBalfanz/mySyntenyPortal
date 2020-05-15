@@ -1,0 +1,2 @@
+   13  ./mySyntenyPortal remove -website_name tse
+   14  ./mySyntenyPortal build -conf ./configurations/tse.conf
