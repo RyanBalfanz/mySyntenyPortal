@@ -14,9 +14,12 @@ The goal of QNS-MSP is to integrate the files generated from qns directly into M
 ### Installing the Two Projects
 Currently this project involves a combination of two existing projects.  
 
-Start by cloning the qns-flow branch from MySyntenyPortal [here](https://github.com/calacademy-research/mySyntenyPortal.git).  
-
-Then, within this directory (i.e. within MSP) clone qns MSP-flow branch [here](https://github.com/calacademy-research/qns.git).
+Start by cloning the qns-flow branch from MySyntenyPortal. Then, within that directory (i.e. within MSP) clone qns MSP-flow branch.  
+```
+git clone https://github.com/calacademy-research/mySyntenyPortal.git
+cd mySyntenyPortal
+git clone https://github.com/calacademy-research/qns.git
+```
 
 The overall structure should be,
 ```
@@ -38,8 +41,9 @@ Run `./build-docker.sh`
 Note: This may take a while because the container has to install many dependencies, however this is a one-time execution.  
 
 ### Setting Up QNS
-In order for QNS to run properly, install the necessary requirements. Start by creating a virtual environment and installing the requirements. Run the following commands within the qns directory to do so.
+In order for QNS to run properly, install the necessary requirements. Start by creating a virtual environment and installing the requirements. Run the following commands within the qns directory to do so.  
 
+`cd mySyntenyPortal/qns`
 `python3 -m venv env`  
 `source env/bin/activate`  
 `pip3 install -r requirements.txt`  
@@ -49,9 +53,13 @@ After setting up the virtual environment with the necessary packages, qns should
 ## Usage
 
 ### Simple Combined Usage
-Once the virtual environment is created and the docker image is built, the combined data flow can be run.
+Once the virtual environment is created and the docker image is built, the combined data flow can be run. Start by navigating to the `/mySyntenyPortal` directory.    
 
-Start by navigating to the `/mySyntenyPortal` directory. Then run the `run-from-qns.sh` script. Follow the following format,
+First, ensure you are within the correct python3 environment. If not already within virtual environment, run  
+
+`source qns/env/bin/activate`  
+
+Then run the `run-from-qns.sh` script. With the following format:  
 
 `./run-from-qns.sh [.links filename] [.tab filename]`
 
