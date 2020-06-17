@@ -16,3 +16,9 @@ RUN echo "export VISIBLE=now" >> /etc/profile
 EXPOSE 80
 ADD . /code/
 WORKDIR /code
+
+# build myCircos and install web files in temp filesystem
+RUN ./install.pl build && ./install.pl install
+
+# launch the web server
+RUN service apache2 start
