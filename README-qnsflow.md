@@ -43,10 +43,10 @@ Note: This may take a while because the container has to install many dependenci
 ### Setting Up QNS
 In order for QNS to run properly, install the necessary requirements. Start by creating a virtual environment and installing the requirements. Run the following commands within the qns directory to do so.  
 
-`cd mySyntenyPortal/qns`
+`cd mySyntenyPortal/qns`  
 `python3 -m venv env`  
 `source env/bin/activate`  
-`pip3 install -r requirements.txt`  
+`pip3 install -r requirements.txt`.   
 
 After setting up the virtual environment with the necessary packages, qns should work properly.
 
