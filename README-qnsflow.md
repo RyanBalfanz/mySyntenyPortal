@@ -9,7 +9,18 @@ The goal of QNS-MSP is to integrate the files generated from qns directly into M
 * Setup and launch MSP
 * Load diagram from .conf file using .synteny and .size files.
 
-## Setup
+## Simple Setup
+For a quicker setup, use the setup scrript `setupQNS.sh`.  
+
+`git clone https://github.com/calacademy-research/mySyntenyPortal.git`  
+`cd mySyntenyPortal`  
+
+or cd into an already installed version of mySyntenyPortal.  
+Next, run the startup script,    
+`./setupQNS.sh`   
+
+
+## Full Setup
 
 ### Installing the Two Projects
 Currently this project involves a combination of two existing projects.  
@@ -18,6 +29,10 @@ Start by cloning the qns-flow branch from MySyntenyPortal. Then, within that dir
 ```
 git clone https://github.com/calacademy-research/mySyntenyPortal.git
 cd mySyntenyPortal
+```
+or cd into an already installed version of mySyntenyPortal.  
+
+```
 git clone https://github.com/calacademy-research/qns.git
 ```
 
