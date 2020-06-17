@@ -14,9 +14,14 @@ fi
 cd ..
 echo "Launching Docker..."
 
-docker run -t -d --name mySyntenyPortal --rm -p 9090:80 -v $PWD:/code sweb
-docker exec mySyntenyPortal ./launch-from-qns-inside-docker.sh
+docker-compose up -d sweb
+
+docker-compose exec sweb ./launch-from-qns-inside-docker.sh
 echo "Check here for diagram: http://localhost:9090/mySyntenyPortal/htdocs/syncircos.php"
-docker exec -it mySyntenyPortal /bin/bash
+
+docker-compose exec sweb /bin/bash
+
+#TODO should the container be stopped?
 echo "Stopping Container..."
-docker stop mySyntenyPortal
+
+docker-compose rm --stop -f sweb
