@@ -1,10 +1,10 @@
 FROM ubuntu:18.04
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update -y
-RUN apt-get install -y perl python gcc g++ wget bzip2 git 
-RUN apt-get install -y apache2 php php-common imagemagick php-imagick php-imagick 
-RUN apt-get install -y zlib1g-dev libpng-dev make sudo automake build-essential
-RUN apt-get install -y pkg-config libgd-dev
+RUN apt-get update -y && apt-get install -y \
+perl python gcc g++ wget bzip2 git \
+apache2 php php-common imagemagick php-imagick php-imagick \
+zlib1g-dev libpng-dev make sudo automake build-essential \
+pkg-config libgd-dev
 RUN wget http://security.ubuntu.com/ubuntu/pool/main/libp/libpng/libpng12-0_1.2.54-1ubuntu1.1_amd64.deb
 RUN dpkg -i libpng12-0_1.2.54-1ubuntu1.1_amd64.deb
 RUN echo 'ServerName localhost' >> /etc/apache2/apache2.conf
