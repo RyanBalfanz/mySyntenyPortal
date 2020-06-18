@@ -4,3 +4,8 @@
 *.synteny
 src/
 configurations/
+
+qns/
+
+scripts/publish_template/htdocs/img
+scripts/publish_template/script/circos

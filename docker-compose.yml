@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  sweb:
+    container_name: mySyntenyPortal
+    build: .
+    ports:
+      - "9090:80"
+    volumes:
+      - .:/code
+    stdin_open: true  # docker run -i
+    tty: true         # docker run -t
+
+    init: true
