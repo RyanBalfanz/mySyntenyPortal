@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-perl ./mySyntenyPortal build -conf ./qns/qns.conf
+perl ./mySyntenyPortal build -conf ./configurations/qns.conf

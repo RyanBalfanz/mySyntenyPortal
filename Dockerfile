@@ -21,4 +21,4 @@ WORKDIR /code
 RUN ./install.pl build && ./install.pl install
 
 # launch the web server
-RUN service apache2 start
+CMD ["apachectl", "-D", "FOREGROUND"]
