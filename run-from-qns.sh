@@ -3,14 +3,23 @@
 links_file=$1
 tab_file=$2
 
+
 cd qns
-if [ -z "${tab_file}"];then
-  echo "Running qns with file "$links_file"..."
-  ./qns $links_file -e -v 0 -cfg
+
+mkdir output
+
+if [[ -z "${tab_file}" ]];then
+  echo "Running qns with file "${links_file}"..."
+  docker-compose -f docker-compose.yml run qns ${links_file} -o ./output/ -v 0 -m --export-config
 else
-  echo "Running qns with file "$links_file" and "$tab_file"..."
-  ./qns $links_file -c $tab_file -e -v 0 -cfg
+  echo "Running qns with file "${links_file}" and "${tab_file}"..."
+  docker-compose -f docker-compose.yml run qns qns/${links_file} -c qns/${tab_file} -v 0 -m --export-config
 fi
+
+# move files to MSP input
+mv output/*.{sizes,synteny} ../data/example_inputs/
+mv output/qns.conf ../configurations/
+
 cd ..
 echo "Launching Docker..."
 
