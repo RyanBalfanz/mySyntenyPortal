@@ -9,81 +9,61 @@ The goal of QNS-MSP is to integrate the files generated from qns directly into M
 * Setup and launch MSP
 * Load diagram from .conf file using .synteny and .size files.
 
-## Simple Setup
-For a quicker setup, use the setup scrript `setupQNS.sh`.  
+## Installation
 
-`git clone https://github.com/calacademy-research/mySyntenyPortal.git`  
-`cd mySyntenyPortal`  
-
-or cd into an already installed version of mySyntenyPortal.  
-Next, run the startup script,    
-`./setupQNS.sh`   
-
-
-## Full Setup
-
-### Installing the Two Projects
 Currently this project involves a combination of two existing projects.  
 
-Start by cloning the qns-flow branch from MySyntenyPortal. Then, within that directory (i.e. within MSP) clone qns MSP-flow branch.  
-```
-git clone https://github.com/calacademy-research/mySyntenyPortal.git
-cd mySyntenyPortal
-```
-or cd into an already installed version of mySyntenyPortal.  
+1. Make sure mySyntenyPortal is installed. To install, run
 
-```
-git clone https://github.com/calacademy-research/qns.git
-```
+		git clone https://github.com/calacademy-research/mySyntenyPortal.git
 
-The overall structure should be,
-```
-/MySyntenyPortal-  
-	build-docker.sh  
-	run-from-qns.sh  
-	…  
-	/qns-  
-		qns  
-		build_config.py  
-		…
-```
+2. Clone QNS into the mySyntenyPortal directory
+ 
+		git clone https://github.com/calacademy-research/qns.git ./mySyntenyPortal/qns
+		
+	The structure should be:
 
-### Setting Up MSP
-In order for MSP to run properly, build the docker image before running any files. To do so, run the `build-docker.sh` file within the project.
+		mySyntenyPortal/
+		├── run-from-qns.sh
+		├── install.pl
+		├── qns
+		│   ├── qns
+		│   ├── config.ini
+		│   ├── ...
+		├── ...
 
-Run `./build-docker.sh`
+		
+3. (Optional) Build MSP and QNS before first run. If you're not planning on running qns right away, this will save some time on the first run:
+		
+		docker-compose -f docker-compose.yml -f qns/docker-compose.yml build --parallel
+		
+**TODO: once the project is released, upload both images to docker hub so they don't have to be built**
 
-Note: This may take a while because the container has to install many dependencies, however this is a one-time execution.  
-
-### Setting Up QNS
-In order for QNS to run properly, install the necessary requirements. Start by creating a virtual environment and installing the requirements. Run the following commands within the qns directory to do so.  
-
-`cd mySyntenyPortal/qns`  
-`python3 -m venv env`  
-`source env/bin/activate`  
-`pip3 install -r requirements.txt`.   
-
-After setting up the virtual environment with the necessary packages, qns should work properly.
 
 ## Usage
 
-### Simple Combined Usage
-Once the virtual environment is created and the docker image is built, the combined data flow can be run. Start by navigating to the `/mySyntenyPortal` directory.    
 
-First, ensure you are within the correct python3 environment. If not already within virtual environment, run  
+Make sure you are in the `mySyntenyPortal` directory
 
-`source qns/env/bin/activate`  
-
-Then run the `run-from-qns.sh` script. With the following format:  
+Then run the `run-from-qns.sh` script with the following format:  
 
 `./run-from-qns.sh [.links filename] [.tab filename]`
 
+**TODO: adjust `run-from-qns.sh` to accept some (all?) qns parameters from the command line instead of deciding them in the script**
+
 Note that this script expects the filenames of files in the /qns directory, therefore the full path is not required. Also, note that the .tab file is optional, the diagram will still generate without them.
+
+**TODO: review this, maybe it makes more sense to have path from `mySyntenyPortal/` instead of `qns/`**
 
 Currently, run the script without the tab files because the script doesn’t support multiple .tab files which limits its usefulness.
 
 ### Example Usage
-Here are some example usages,
+Here are some example usages:
 
 `./run-from-qns.sh Tse_Allig.links`  
 `./run-from-qns.sh Tse_Goph.links`  
+
+## Notes
+`./run-from-qns.sh` currently passes the flags `-o ./output/ -v 0 -m --export-config`.
+
+`-m` and `--export-config` generate required files for mySyntenyPortal, `-v 0` just silences the output.

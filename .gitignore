@@ -9,3 +9,10 @@ qns/
 
 scripts/publish_template/htdocs/img
 scripts/publish_template/script/circos
+
+htdocs/path_info.txt
+
+# MSP saves website data to data/ so we should ignore it, but keep the example_inputs folder
+data/
+!data/example_inputs
+
