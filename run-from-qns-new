@@ -1,0 +1,86 @@
+#!/usr/bin/env python3
+
+import argparse
+import os
+from pathlib import Path
+import subprocess
+
+def handle_args():
+    parser = argparse.ArgumentParser(description="")
+    parser.add_argument("-l",
+                         "--links_file",
+                         metavar="",
+                         required=True,
+                         type=str,
+                         help="filename for .links file located in the qns sub-directory.")
+
+    parser.add_argument("-t",
+                        "--tabs_files",
+                        metavar="",
+                        required=False,
+                        type=str,
+                        nargs="+",
+                        help="List of tab files located in the qns sub-directory to run qns with.")
+
+    parser.add_argument("-d",
+                        "--debug",
+                        metavar="",
+                        default=True,
+                        type=bool,
+                        help="Describes whether or not to print progress messages to console.")
+
+    args = parser.parse_args()
+    return args
+
+def run_command(cmd):
+    process = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
+    output, error = process.communicate()
+    if not error:
+        return True, output
+    else:
+        return False, error
+
+args = handle_args()
+msg = ""
+cmd = ""
+
+os.chdir("qns")
+Path("output").mkdir(parents=True, exist_ok=True)
+
+if args.tabs_files:
+    first_file = args.tabs_files[0]
+    second_file = args.tabs_files[1]
+    msg = "*Running QNS with file "+args.links_file+ " and tab files "+first_file+" and "+second_file
+    cmd = "docker-compose -f docker-compose.yml run qns "+args.links_file+" -c "+first_file+" -c "+second_file+" -o ./output/ -v 1 -m --export-config"
+
+else:
+    msg = "*Running QNS with file "+args.links_file
+    cmd = "docker-compose -f docker-compose.yml run qns "+args.links_file+" -o ./output/ -v 0 -m --export-config"
+
+print(msg)
+sucess, output = run_command(cmd)
+if sucess:
+    qns_output = os.listdir("output")
+
+    for file in qns_output:
+        file_path = "output/"+file
+
+        if file.endswith(".sizes") or file.endswith(".synteny"):
+            os.rename(file_path, "../data/example_inputs/"+file)
+        elif file.endswith(".conf"):
+            os.rename(file_path, "../configurations/"+file)
+
+os.chdir("..")
+
+print("Check here for diagram: http://localhost:9090/mySyntenyPortal/htdocs/syncircos.php")
+run_command("./kick-off-docker.sh")
+
+#Couldn't get this to work
+"""
+run_command("docker-compose up -d sweb")
+run_command("docker-compose start sweb")
+run_command("docker-compose exec sweb perl ./mySyntenyPortal build -conf ./configurations/qns.conf")
+print("Check here for diagram: http://localhost:9090/mySyntenyPortal/htdocs/syncircos.php")
+run_command("read -rsn1 -p'Press any key to exit';echo")
+run_command("docker-compose stop -t 2 sweb > /dev/null 2>&1 &")
+"""
