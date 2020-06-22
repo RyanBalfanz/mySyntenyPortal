@@ -9,6 +9,10 @@ The goal of QNS-MSP is to integrate the files generated from qns directly into M
 * Setup and launch MSP
 * Load diagram from .conf file using .synteny and .size files.
 
+## Requirements
+* Docker engine version 17.06.0+
+* docker-compose version 1.17.1+
+
 ## Installation
 
 Currently this project involves a combination of two existing projects.  
