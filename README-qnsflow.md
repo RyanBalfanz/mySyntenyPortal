@@ -82,4 +82,5 @@ Here are some example usages:
 ## Notes
 `./run-from-qns` currently passes the flags `-o ./output/ -v 0 -m --export-config`.
 
-`-m` and `--export-config` generate required files for mySyntenyPortal, `-v 0` just silences the output.
+`-m` and `--export-config` generate required files for mySyntenyPortal, `-v 0` just silences the output.  
+The -t tag expects either two tab files or neither, should throw an error if only 1 is given.   
