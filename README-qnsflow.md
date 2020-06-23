@@ -48,10 +48,11 @@ Currently this project involves a combination of two existing projects.
 
 In order to run the MSP-QNS project without running QNS within a docker container, install a virtual envirionemtn within QNS.
 
-`cd qns`
-`python3 -m venv env`
-`source env/bin/activate`
-`pip3 install -r requirements.txt`
+`cd qns`  
+`python3 -m venv env`  
+`source env/bin/activate`  
+`pip3 install -r requirements.txt`  
+  
 
 Now, ensure that the virtual environment is running before kicking off ./run-from-qns
 
@@ -76,9 +77,9 @@ Currently, run the script without the tab files because the script doesn’t sup
 ### Example Usage
 Here are some example usages:
 
-`./run-from-qns Tse_Allig.links -t Tse-karyotype.tab Allig-karyotype.tab`
-`./run-from-qns Tse_Goph.links -t Tse-karyotype.tab Goph-karyotype.tab`
-
+`./run-from-qns Tse_Allig.links -t Tse-karyotype.tab Allig-karyotype.tab`  
+`./run-from-qns Tse_Goph.links -t Tse-karyotype.tab Goph-karyotype.tab`  
+  
 ## Notes
 `./run-from-qns` currently passes the flags `-o ./output/ -v 0 -m --export-config`.
 
