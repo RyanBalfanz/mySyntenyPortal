@@ -83,6 +83,7 @@ def move_files():
         elif file.endswith(".conf"):
             os.rename(file_path, "../configurations/"+file)
 
+#Start Here
 
 args = handle_args()
 cmd = determine_command(args)
@@ -99,13 +100,3 @@ else:
 
     print("Check here for diagram: http://localhost:9090/mySyntenyPortal/htdocs/syncircos.php")
     run_command("./kick-off-docker.sh")
-
-#Couldn't get this to work
-"""
-run_command("docker-compose up -d sweb")
-run_command("docker-compose start sweb")
-run_command("docker-compose exec sweb perl ./mySyntenyPortal build -conf ./configurations/qns.conf")
-print("Check here for diagram: http://localhost:9090/mySyntenyPortal/htdocs/syncircos.php")
-run_command("read -rsn1 -p'Press any key to exit';echo")
-run_command("docker-compose stop -t 2 sweb > /dev/null 2>&1 &")
-"""
