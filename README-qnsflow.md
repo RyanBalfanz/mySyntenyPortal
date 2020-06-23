@@ -15,6 +15,8 @@ The goal of QNS-MSP is to integrate the files generated from qns directly into M
 
 ## Installation
 
+### General Setup
+
 Currently this project involves a combination of two existing projects.  
 
 1. Make sure mySyntenyPortal is installed. To install, run
@@ -22,9 +24,9 @@ Currently this project involves a combination of two existing projects.
 		git clone https://github.com/calacademy-research/mySyntenyPortal.git
 
 2. Clone QNS into the mySyntenyPortal directory
- 
+
 		git clone https://github.com/calacademy-research/qns.git ./mySyntenyPortal/qns
-		
+
 	The structure should be:
 
 		mySyntenyPortal/
@@ -36,22 +38,32 @@ Currently this project involves a combination of two existing projects.
 		│   ├── ...
 		├── ...
 
-		
-3. (Optional) Build MSP and QNS before first run. If you're not planning on running qns right away, this will save some time on the first run:
-		
-		docker-compose -f docker-compose.yml -f qns/docker-compose.yml build --parallel
-		
-**TODO: once the project is released, upload both images to docker hub so they don't have to be built**
 
+3. (Optional) Build MSP and QNS before first run. If you're not planning on running qns right away, this will save some time on the first run:
+
+		docker-compose -f docker-compose.yml -f qns/docker-compose.yml build --parallel
+
+**TODO: once the project is released, upload both images to docker hub so they don't have to be built**
+### Non-Docker-Compose Setup
+
+In order to run the MSP-QNS project without running QNS within a docker container, install a virtual envirionemtn within QNS.
+
+`cd qns`
+`python3 -m venv env`
+`source env/bin/activate`
+`pip3 install -r requirements.txt`
+
+Now, ensure that the virtual environment is running before kicking off ./run-from-qns
 
 ## Usage
 
-
 Make sure you are in the `mySyntenyPortal` directory
 
-Then run the `run-from-qns.sh` script with the following format:  
+Then run the `run-from-qns` script with the following format:  
 
-`./run-from-qns.sh [.links filename] [.tab filename]`
+`./run-from-qns [.links filename] -t [.tab filename] [.tab filename] -d`  
+
+The `-d` tag tells the program to run QNS with docker compose, if omitted, virtual environment is expected.   
 
 **TODO: adjust `run-from-qns.sh` to accept some (all?) qns parameters from the command line instead of deciding them in the script**
 
@@ -64,10 +76,11 @@ Currently, run the script without the tab files because the script doesn’t sup
 ### Example Usage
 Here are some example usages:
 
-`./run-from-qns.sh Tse_Allig.links`  
-`./run-from-qns.sh Tse_Goph.links`  
+`./run-from-qns Tse_Allig.links -t Tse-karyotype.tab Allig-karyotype.tab`
+`./run-from-qns Tse_Goph.links -t Tse-karyotype.tab Goph-karyotype.tab`
 
 ## Notes
-`./run-from-qns.sh` currently passes the flags `-o ./output/ -v 0 -m --export-config`.
+`./run-from-qns` currently passes the flags `-o ./output/ -v 0 -m --export-config`.
 
-`-m` and `--export-config` generate required files for mySyntenyPortal, `-v 0` just silences the output.
+`-m` and `--export-config` generate required files for mySyntenyPortal, `-v 0` just silences the output.  
+The -t tag expects either two tab files or neither, should throw an error if only 1 is given.   
