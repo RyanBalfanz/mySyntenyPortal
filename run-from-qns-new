@@ -7,12 +7,9 @@ import subprocess
 
 def handle_args():
     parser = argparse.ArgumentParser(description="")
-    parser.add_argument("-l",
-                         "--links_file",
-                         metavar="",
-                         required=True,
-                         type=str,
-                         help="filename for .links file located in the qns sub-directory.")
+    parser.add_argument('links_file',
+                        type=str,
+                        nargs='+')
 
     parser.add_argument("-t",
                         "--tabs_files",
@@ -22,12 +19,17 @@ def handle_args():
                         nargs="+",
                         help="List of tab files located in the qns sub-directory to run qns with.")
 
-    parser.add_argument("-d",
-                        "--debug",
+    parser.add_argument("-q",
+                        "--quiet_mode",
                         metavar="",
-                        default=True,
+                        default=False,
                         type=bool,
                         help="Describes whether or not to print progress messages to console.")
+
+    parser.add_argument("-d",
+                        "--docker",
+                        action="store_true",
+                        help="Describes whether or not to use docker-compose to run qns.")
 
     args = parser.parse_args()
     return args
@@ -40,26 +42,37 @@ def run_command(cmd):
     else:
         return False, error
 
-args = handle_args()
-msg = ""
-cmd = ""
+def print_message(msg, quiet_mode):
+    if not quiet_mode:
+        print(msg)
 
-os.chdir("qns")
-Path("output").mkdir(parents=True, exist_ok=True)
+def determine_command(args):
 
-if args.tabs_files:
-    first_file = args.tabs_files[0]
-    second_file = args.tabs_files[1]
-    msg = "*Running QNS with file "+args.links_file+ " and tab files "+first_file+" and "+second_file
-    cmd = "docker-compose -f docker-compose.yml run qns "+args.links_file+" -c "+first_file+" -c "+second_file+" -o ./output/ -v 1 -m --export-config"
+    msg = ""
+    base_cmd = ""
+    cmd = ""
 
-else:
-    msg = "*Running QNS with file "+args.links_file
-    cmd = "docker-compose -f docker-compose.yml run qns "+args.links_file+" -o ./output/ -v 0 -m --export-config"
+    if args.docker:
+        msg += "Running QNS with Docker...\n"
+        cmd += "docker-compose -f docker-compose.yml run qns "
+    else:
+        msg += "Running QNS within venv...\n"
+        cmd += "./qns "
 
-print(msg)
-sucess, output = run_command(cmd)
-if sucess:
+    if args.tabs_files:
+        first_file = args.tabs_files[0]
+        second_file = args.tabs_files[1]
+        msg += "Running QNS with file \'"+"".join(args.links_file)+"\' and tab files \'"+first_file+"\' and \'"+second_file+"\'"
+        cmd += "".join(args.links_file)+ " -c "+first_file+" -c "+second_file+" -o ./output/ -v 0 -m --export-config"
+
+    else:
+        msg += "Running QNS with file \'"+args.links_file+"\'"
+        cmd += "".join(args.links_file)+ " -o ./output/ -v 0 -m --export-config"
+
+    print_message(msg, args.quiet_mode)
+    return base_cmd+cmd
+
+def move_files():
     qns_output = os.listdir("output")
 
     for file in qns_output:
@@ -70,10 +83,22 @@ if sucess:
         elif file.endswith(".conf"):
             os.rename(file_path, "../configurations/"+file)
 
-os.chdir("..")
 
-print("Check here for diagram: http://localhost:9090/mySyntenyPortal/htdocs/syncircos.php")
-run_command("./kick-off-docker.sh")
+args = handle_args()
+cmd = determine_command(args)
+
+os.chdir("qns")
+Path("output").mkdir(parents=True, exist_ok=True)
+sucess, output = run_command(cmd)
+
+if not sucess:
+    print_message(output, args.quiet_mode)
+else:
+    move_files()
+    os.chdir("..")
+
+    print("Check here for diagram: http://localhost:9090/mySyntenyPortal/htdocs/syncircos.php")
+    run_command("./kick-off-docker.sh")
 
 #Couldn't get this to work
 """
