@@ -62,26 +62,22 @@ Make sure you are in the `mySyntenyPortal` directory
 
 Then run the `run-from-qns` script with the following format:  
 
-`./run-from-qns [.links filename] -t [.tab filename] [.tab filename] -d`  
+`./run-from-qns [.links filename] -c [.tab filename] [.tab filename] -d`  
 
 The `-d` tag tells the program to run QNS with docker compose, if omitted, virtual environment is expected.   
-
-**TODO: adjust `run-from-qns.sh` to accept some (all?) qns parameters from the command line instead of deciding them in the script**
+`./run-from-qns` accepts the same flags as QNS, but ignores the ones that would cause it to not function properly with QNS.   
 
 Note that this script expects the filenames of files in the /qns directory, therefore the full path is not required. Also, note that the .tab file is optional, the diagram will still generate without them.
 
 **TODO: review this, maybe it makes more sense to have path from `mySyntenyPortal/` instead of `qns/`**
 
-Currently, run the script without the tab files because the script doesn’t support multiple .tab files which limits its usefulness.
-
 ### Example Usage
 Here are some example usages:
 
-`./run-from-qns Tse_Allig.links -t Tse-karyotype.tab Allig-karyotype.tab`  
-`./run-from-qns Tse_Goph.links -t Tse-karyotype.tab Goph-karyotype.tab`  
+`./run-from-qns Tse_Allig.links -c Tse-karyotype.tab Allig-karyotype.tab`  
+`./run-from-qns Tse_Goph.links -c Tse-karyotype.tab Goph-karyotype.tab`  
   
 ## Notes
-`./run-from-qns` currently passes the flags `-o ./output/ -v 0 -m --export-config`.
+`./run-from-qns` currently forcefully passes the flags `-o ./output/ -v 0 -m --export-config`.
 
 `-m` and `--export-config` generate required files for mySyntenyPortal, `-v 0` just silences the output.  
-The -t tag expects either two tab files or neither, should throw an error if only 1 is given.   
