@@ -4,35 +4,28 @@ import argparse
 import os
 from pathlib import Path
 import subprocess
+from qns.args_parser import prepare_args
+import sys
 
-def handle_args():
-    parser = argparse.ArgumentParser(description="")
-    parser.add_argument('links_file',
-                        type=str,
-                        nargs='+')
+def handle_parser():
+    """
+    Load in Parser from QNS and add docker tag
+    """
 
-    parser.add_argument("-t",
-                        "--tabs_files",
-                        metavar="",
-                        required=False,
-                        type=str,
-                        nargs="+",
-                        help="List of tab files located in the qns sub-directory to run qns with.")
-
-    parser.add_argument("-q",
-                        "--quiet_mode",
-                        metavar="",
-                        default=False,
-                        type=bool,
-                        help="Describes whether or not to print progress messages to console.")
+    parser = prepare_args()
 
     parser.add_argument("-d",
                         "--docker",
                         action="store_true",
-                        help="Describes whether or not to use docker-compose to run qns.")
+                        help="Describes whether or not to use docker-compose to run qns.",
+                        dest="docker")
+    return parser
 
-    args = parser.parse_args()
-    return args
+def filter_out_docker_tag(str):
+    return str.replace(" -d", "")
+
+def get_raw_args():
+    return filter_out_docker_tag(" ".join(sys.argv[1:]))
 
 def run_command(cmd):
     process = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
@@ -42,14 +35,9 @@ def run_command(cmd):
     else:
         return False, error
 
-def print_message(msg, quiet_mode):
-    if not quiet_mode:
-        print(msg)
-
 def determine_command(args):
-
+    #Msg currently not being used. Maybe hookup with QNS logging.
     msg = ""
-    base_cmd = ""
     cmd = ""
 
     if args.docker:
@@ -59,20 +47,14 @@ def determine_command(args):
         msg += "Running QNS within venv...\n"
         cmd += "./qns "
 
-    if args.tabs_files:
-        first_file = args.tabs_files[0]
-        second_file = args.tabs_files[1]
-        msg += "Running QNS with file \'"+"".join(args.links_file)+"\' and tab files \'"+first_file+"\' and \'"+second_file+"\'"
-        cmd += "".join(args.links_file)+ " -c "+first_file+" -c "+second_file+" -o ./output/ -v 0 -m --export-config"
-
-    else:
-        msg += "Running QNS with file \'"+args.links_file+"\'"
-        cmd += "".join(args.links_file)+ " -o ./output/ -v 0 -m --export-config"
-
-    print_message(msg, args.quiet_mode)
-    return base_cmd+cmd
+    raw_args = get_raw_args()
+    return cmd + raw_args
 
 def move_files():
+    """
+    Move files from QNS ouput to MSP input
+    """
+    
     qns_output = os.listdir("output")
 
     for file in qns_output:
@@ -83,17 +65,19 @@ def move_files():
         elif file.endswith(".conf"):
             os.rename(file_path, "../configurations/"+file)
 
-#Start Here
 
-args = handle_args()
+#Start Here
+os.chdir("qns")
+parser = handle_parser()
+args = parser.parse_args()
+
 cmd = determine_command(args)
 
-os.chdir("qns")
 Path("output").mkdir(parents=True, exist_ok=True)
 sucess, output = run_command(cmd)
 
 if not sucess:
-    print_message(output, args.quiet_mode)
+    print(output)
 else:
     move_files()
     os.chdir("..")
