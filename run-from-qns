@@ -21,11 +21,20 @@ def handle_parser():
                         dest="docker")
     return parser
 
-def filter_out_docker_tag(str):
-    return str.replace(" -d", "")
+def filter_out_tag(str, tag):
+    return str.replace(" "+tag+" ", " ")
 
 def get_raw_args():
-    return filter_out_docker_tag(" ".join(sys.argv[1:]))
+    args = " ".join(sys.argv[1:])
+    tags_to_remove = ["-d", "--docker", "-m", "--export_config", '-v', '--verbosity', '-o', '--output-dir']
+    for tag in tags_to_remove:
+        args = filter_out_tag(args, tag)
+
+    args += " -m"
+    args += " --export-config"
+    args += " -v 0"
+    args += " -o ./output/"
+    return args
 
 def run_command(cmd):
     process = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
@@ -54,7 +63,7 @@ def move_files():
     """
     Move files from QNS ouput to MSP input
     """
-    
+
     qns_output = os.listdir("output")
 
     for file in qns_output:
@@ -72,7 +81,7 @@ parser = handle_parser()
 args = parser.parse_args()
 
 cmd = determine_command(args)
-
+print(cmd)
 Path("output").mkdir(parents=True, exist_ok=True)
 sucess, output = run_command(cmd)
 
