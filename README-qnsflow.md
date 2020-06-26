@@ -62,7 +62,7 @@ Make sure you are in the `mySyntenyPortal` directory
 
 Then run the `run-from-qns` script with the following format:  
 
-`./run-from-qns [.links filename] -c [.tab filename] [.tab filename] -d`  
+`./run-from-qns [.links filename] -c [.tab filename] -c [.tab filename] -d`  
 
 The `-d` tag tells the program to run QNS with docker compose, if omitted, virtual environment is expected.   
 `./run-from-qns` accepts the same flags as QNS, but ignores the ones that would cause it to not function properly with QNS.   
@@ -74,8 +74,8 @@ Note that this script expects the filenames of files in the /qns directory, ther
 ### Example Usage
 Here are some example usages:
 
-`./run-from-qns Tse_Allig.links -c Tse-karyotype.tab Allig-karyotype.tab`  
-`./run-from-qns Tse_Goph.links -c Tse-karyotype.tab Goph-karyotype.tab`  
+`./run-from-qns Tse_Allig.links -c Tse-karyotype.tab -c Allig-karyotype.tab`  
+`./run-from-qns Tse_Goph.links -c Tse-karyotype.tab -c Goph-karyotype.tab`  
   
 ## Notes
 `./run-from-qns` currently forcefully passes the flags `-o ./output/ -v 0 -m --export-config`.
