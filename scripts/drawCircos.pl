@@ -401,16 +401,37 @@ for(my $i = 0;$i <= $spc_num;$i++){
 		print O5 ";$ID{$i}$ch";
 	}
 }
-print O5 "\nchromosomes_order = ";
-my %chr_sort;
-for(my $i = 0;$i <= $spc_num;$i++){
-	foreach my $j (natsort keys %{$scaf_order{$i}}){
-		$chr_sort{"$ID{$i}$scaf_order{$i}{$j}"} = 0;
-	}
-}
 
-foreach my $chr_id (natsort keys %chr_sort){
-	print O5 "$chr_id,";
+print O5 "\nchromosomes_order = ";
+
+# If there are only two species, arrange them so that the chromosomes face each other
+if ($spc_num == 2) {
+	foreach my $ch (natsort keys %{$chr_size{0}}) {
+		print O5 "$ID{0}$ch,";
+	}
+
+	foreach my $ch (reverse natsort keys %{$chr_size{1}}) {
+		print O5 "$ID{1}$ch,";
+	}
+
+	# Add target chromosomes to chromosomes_reverse so they appear mirrored and don't twist
+	print O5 "\nchromosomes_reverse = ";
+	foreach my $ch (natsort keys %{$chr_size{1}}) {
+		print O5 "$ID{1}$ch,";
+	}
+
+}
+else {
+	my %chr_sort;
+	for (my $i = 0; $i <= $spc_num; $i++) {
+		foreach my $j (natsort keys %{$scaf_order{$i}}) {
+			$chr_sort{"$ID{$i}$scaf_order{$i}{$j}"} = 0;
+		}
+	}
+
+	foreach my $chr_id (natsort keys %chr_sort) {
+		print O5 "$chr_id,";
+	}
 }
 
 print O5 "\nchromosomes_scale = ";
