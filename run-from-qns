@@ -19,14 +19,26 @@ def handle_parser():
                         action="store_true",
                         help="Describes whether or not to use docker-compose to run qns.",
                         dest="docker")
+
+    parser.add_argument("--clear-cache",
+                        action="store_true",
+                        help="Describes whether or not to delete website data after run.",
+                        dest="clear_cache")
     return parser
 
-def filter_out_tag(str, tag):
-    return str.replace(" "+tag+" ", " ")
+
+def filter_out_tag(s, tag):
+    return s.replace(" "+tag, "")
+
 
 def get_raw_args():
     args = " ".join(sys.argv[1:])
-    tags_to_remove = ["-d", "--docker", "-m", "--export_config", '-v', '--verbosity', '-o', '--output-dir']
+    tags_to_remove = ["-d", "--docker",
+                      "-m", "--export_config",
+                      '-v', '--verbosity',
+                      '-o', '--output-dir',
+                      '--clear-cache']
+
     for tag in tags_to_remove:
         args = filter_out_tag(args, tag)
 
@@ -35,6 +47,7 @@ def get_raw_args():
     args += " -v 0"
     args += " -o ./output/"
     return args
+
 
 def run_command(cmd):
     process = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
@@ -93,3 +106,7 @@ else:
 
     print("Check here for diagram: http://localhost:9090/mySyntenyPortal/htdocs/syncircos.php")
     run_command("./kick-off-docker.sh")
+
+    if args.clear_cache:
+        run_command("rm -rf data/test")
+        print("\nRemoved Cache stored at data/test...")
