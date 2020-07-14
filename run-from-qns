@@ -88,7 +88,6 @@ def move_files(dir):
 
     for file in qns_output:
         file_path = dir + '/' + file
-
         if file.endswith(".sizes") or file.endswith(".synteny"):
             os.rename(file_path, "../data/example_inputs/"+file)
         elif file.endswith(".conf"):
@@ -103,9 +102,8 @@ with get_temp_dir() as temp_dir:
 
     cmd = determine_command(parser_args, temp_dir)
     #print(cmd)
-    Path("output").mkdir(parents=True, exist_ok=True)
+    #Path("output").mkdir(parents=True, exist_ok=True)
     sucess, output = run_command(cmd)
-
     if not sucess:
         print(output)
     else:
