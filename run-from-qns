@@ -11,6 +11,7 @@ from typing import List, Union
 
 import sys
 
+
 def handle_parser():
     """
     Load in Parser from QNS and add docker tag
@@ -19,15 +20,15 @@ def handle_parser():
     launcher_parser = argparse.ArgumentParser()
 
     launcher_parser.add_argument("-d",
-                        "--docker",
-                        action="store_true",
-                        help="Describes whether or not to use docker-compose to run qns.",
-                        dest="docker")
+                                 "--docker",
+                                 action="store_true",
+                                 help="Describes whether or not to use docker-compose to run qns.",
+                                 dest="docker")
 
     launcher_parser.add_argument("--clear-cache",
-                        action="store_true",
-                        help="Describes whether or not to delete website data after run.",
-                        dest="clear_cache")
+                                 action="store_true",
+                                 help="Describes whether or not to delete website data after run.",
+                                 dest="clear_cache")
     return launcher_parser
 
 
@@ -92,20 +93,20 @@ def move_files(dir):
     for file in qns_output:
         file_path = dir + '/' + file
         if file.endswith(".sizes") or file.endswith(".synteny"):
-            os.rename(file_path, "../data/example_inputs/"+file)
+            os.rename(file_path, "../data/example_inputs/" + file)
         elif file.endswith(".conf"):
-            os.rename(file_path, "../configurations/"+file)
+            os.rename(file_path, "../configurations/" + file)
 
 
-#Start Here
+# Start Here
 with get_temp_dir() as temp_dir:
     os.chdir("qns")
     parser = handle_parser()
     launcher_args, qns_args = parser.parse_known_args()
 
     cmd = determine_command(launcher_args, qns_args, temp_dir)
-    #print(cmd)
-    #Path("output").mkdir(parents=True, exist_ok=True)
+    # print(cmd)
+    # Path("output").mkdir(parents=True, exist_ok=True)
     sucess, output = run_command(cmd)
     if not sucess:
         print(output)
