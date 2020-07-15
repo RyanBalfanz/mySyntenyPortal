@@ -405,7 +405,7 @@ for(my $i = 0;$i <= $spc_num;$i++){
 print O5 "\nchromosomes_order = ";
 
 # If there are only two species, arrange them so that the chromosomes face each other
-if ($spc_num == 2) {
+if ($spc_num == 1) {
 	foreach my $ch (natsort keys %{$chr_size{0}}) {
 		print O5 "$ID{0}$ch,";
 	}
