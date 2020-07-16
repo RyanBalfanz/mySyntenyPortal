@@ -11,6 +11,8 @@ from typing import List, Union
 
 import sys
 
+import args_parser
+
 
 def handle_parser():
     """
@@ -29,6 +31,18 @@ def handle_parser():
                                  action="store_true",
                                  help="Describes whether or not to delete website data after run.",
                                  dest="clear_cache")
+
+    launcher_parser.add_argument('-v', '--verbosity',
+                                 help=argparse.SUPPRESS,
+                                 action='store',
+                                 type=int,
+                                 dest='verbosity')
+
+    launcher_parser.add_argument('-o', '--output-dir',
+                               help=argparse.SUPPRESS,
+                               action='store', type=str, dest='output_directory',
+                               default=os.getcwd())
+
     return launcher_parser
 
 
@@ -36,23 +50,18 @@ def get_temp_dir():
     return tempfile.TemporaryDirectory()
 
 
-def filter_args(qns_args: List[str], temp_output_folder: Path) -> List[str]:
+def add_custom_args(qns_args: List[str], temp_output_folder: Path) -> List[str]:
     """
     Removes qns parameters that the launcher handles and add needed parameters
     Returns:
 
     """
-    tags_to_remove = {"-d", "--docker",
-                      "-m", "--export_config",
-                      '-v', '--verbosity',
-                      '-o', '--output-dir',
-                      '--clear-cache'}
+    # Tags to remove or modify are held as arguments to launcher parser
+    # They accept a value, so it's easiest to capture it so it doesn't get passed on to qns
 
-    clean_args = list(filter(lambda x: x not in tags_to_remove, qns_args))
+    qns_args = ['-m', '--export-config', '-v 0', f"-o {temp_output_folder}"] + qns_args
 
-    clean_args.extend(['-m', '--export-config', '-v 0', f"-o {temp_output_folder}"])
-
-    return list(qns_args)
+    return qns_args
 
 
 def run_command(parameters: Union[str, List[str]]):
@@ -78,7 +87,7 @@ def determine_command(launcher_args, qns_args, temp_dir):
         msg += "Running QNS within venv...\n"
         cmd += "./qns "
 
-    args_for_qns = filter_args(qns_args, temp_dir)
+    args_for_qns = add_custom_args(qns_args, temp_dir)
 
     return cmd + " ".join(args_for_qns)
 
@@ -105,7 +114,7 @@ with get_temp_dir() as temp_dir:
     launcher_args, qns_args = parser.parse_known_args()
 
     cmd = determine_command(launcher_args, qns_args, temp_dir)
-    # print(cmd)
+    print(cmd)
     # Path("output").mkdir(parents=True, exist_ok=True)
     sucess, output = run_command(cmd)
     if not sucess:
