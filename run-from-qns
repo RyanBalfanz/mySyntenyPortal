@@ -11,7 +11,9 @@ from typing import List, Union
 
 import sys
 
-import args_parser
+QNS_DIR = "qns"
+
+
 
 
 def handle_parser():
@@ -108,8 +110,15 @@ def move_files(dir):
 
 
 # Start Here
+qns_found = os.path.isdir(QNS_DIR)
+if not qns_found:
+    sys.stderr.write("QNS directory not found, aborting.\n")
+    sys.exit(1)
+
+
+print(QNS_DIR)
 with get_temp_dir() as temp_dir:
-    os.chdir("qns")
+    os.chdir(QNS_DIR)
     parser = handle_parser()
     launcher_args, qns_args = parser.parse_known_args()
 
