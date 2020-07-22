@@ -410,7 +410,8 @@ if ($spc_num == 1) {
 		print O5 "$ID{0}$ch,";
 	}
 
-	foreach my $ch (reverse natsort keys %{$chr_size{1}}) {
+	# foreach my $ch (reverse natsort keys %{$chr_size{1}}) {
+	foreach my $ch (natsort keys %{$chr_size{1}}) {
 		print O5 "$ID{1}$ch,";
 	}
 
