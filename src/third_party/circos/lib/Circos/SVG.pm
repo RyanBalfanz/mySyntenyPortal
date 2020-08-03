@@ -470,6 +470,7 @@ sub style {
 		my $sc = $params{color} || fetch_conf("default_color");
 		push @style, sprintf("stroke:rgb(%d,%d,%d)", rgb_color($sc));
 		if ( (my $op = rgb_color_opacity( $params{color} )) < 1 ) {
+      #printinfo($params{color},rgb_color_opacity($params{color}));
 	    push @style, sprintf("stroke-opacity:%.2f",$op);
 		}
 	}

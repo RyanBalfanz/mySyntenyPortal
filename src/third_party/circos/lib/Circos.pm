@@ -1,7 +1,7 @@
 package Circos;
 
-our $VERSION      = "0.69-3";
-our $VERSION_DATE = "24 Jun 2016";
+our $VERSION      = "0.69-8";
+our $VERSION_DATE = "15 Jun 2019";
 
 =pod
 
@@ -39,7 +39,7 @@ another image, call run again with different options.
 
 =head1 VERSION
 
-Version 0.69-3
+Version 0.69-6
 
 =head1 FUNCTIONS/METHODS
 
@@ -94,6 +94,10 @@ use Circos::Unit;
 use Circos::Utils;
 use Circos::URL;
 
+use Circos::RGB;
+use Circos::LCH;
+use Circos::HSV;
+
 # -------------------------------------------------------------------
 =pod
 	
@@ -106,7 +110,8 @@ or a hashref of the configuration options.
 # -------------------------------------------------------------------
 
 	sub run {
-    start_timer("circos");
+
+		start_timer("circos");
     my $package = shift;
     %OPT = ref $_[0] eq "HASH" ? %{$_[0]} : @_;
     Circos::Error::fake_error($OPT{fakeerror}) if defined $OPT{fakeerror};
@@ -1023,7 +1028,7 @@ or a hashref of the configuration options.
 
 				my $label_parallel = seek_parameter("label_parallel",$datum,@param_path);
 				# centers the label radially - useful only when the label is radial, not parallel
-				my $label_radius   = unit_parse(seek_parameter("label_radius",$datum,@param_path));
+				my $label_radius   = unit_parse(seek_parameter("label_radius",$datum,$ideogram,@param_path));
 				#printinfo($tag,$label_radius,$DIMS->{ideogram}{$tag}{label}{radius});
 
 				if (seek_parameter("label_center",$datum,@param_path)) {
@@ -1038,8 +1043,8 @@ or a hashref of the configuration options.
 				}
 
 				my ($offset_angle,$offset_radius) = textoffset($textangle,
-																											 $label_radius,
-																											 #$DIMS->{ideogram}{$tag}{label}{radius},
+																											 #$label_radius,
+																											 $DIMS->{ideogram}{$tag}{label}{radius},
 																											 $label_width, $label_height,
 																											 0,
 																											 $label_parallel);
@@ -1347,7 +1352,7 @@ or a hashref of the configuration options.
 					my @bezier_points = bezier_points(@bezier_control_points);
 
 					printdebug_group("bezier", "beziercontrols",int(@bezier_control_points), @bezier_control_points );
-
+          #printinfo(seek_parameter("color",@i_param_path_link),rgb_color_opacity(seek_parameter("color",@i_param_path_link)));
 					my $svg;
 					my $svg_attr = seek_parameter_glob("^svg.*",qr/^svg/,@i_param_path_link);
 					if ( $num_bezier_control_points == 10 && $SVG_MAKE ) {
@@ -1373,7 +1378,7 @@ or a hashref of the configuration options.
 													 qq{<path d="M %.1f,%.1f L $point_string " style="stroke-opacity: %f; stroke-width: %.1f; stroke: rgb(%d,%d,%d); fill: none" %s />},
 													 ( map { @$_ } @bezier_points[ 0, 1 ] ),
 													 ( map { @$_ } @bezier_points[ 2 .. @bezier_points - 1 ] ),
-													 rgb_color_opacity(seek_parameter("color",@i_param_path_link)),
+													 1-rgb_color_transparency(seek_parameter("color",@i_param_path_link)),
 													 unit_strip(seek_parameter("thickness", @i_param_path_link),"p"),
 													 rgb_color(seek_parameter("color", @i_param_path_link)),
 													 attr_string($svg_attr),
@@ -1384,7 +1389,7 @@ or a hashref of the configuration options.
 													 qq{<path d="M %.1f,%.1f C %s" style="stroke-opacity: %f; stroke-width: %.1f; stroke: rgb(%d,%d,%d); fill: none" %s />},
 													 @bezier_control_points[ 0, 1 ],
 													 $point_string,
-													 rgb_color_opacity(seek_parameter("color",@i_param_path_link)),
+													 1-rgb_color_transparency(seek_parameter("color",@i_param_path_link)),
 													 unit_strip(seek_parameter("thickness", @i_param_path_link),"p"),
 													 rgb_color(seek_parameter("color", @i_param_path_link)),
 													 attr_string($svg_attr),
@@ -1393,7 +1398,7 @@ or a hashref of the configuration options.
 						$svg = sprintf(
 													 qq{<path d="M %.1f,%.1f Q %.1f,%.1f %.1f,%.1f" style="stroke-opacity: %f; stroke-width: %.1f; stroke: rgb(%d,%d,%d); fill: none" %s />},
 													 @bezier_control_points,
-													 rgb_color_opacity(seek_parameter("color",@i_param_path_link)),
+													 1-rgb_color_transparency(seek_parameter("color",@i_param_path_link)),
 													 unit_strip(seek_parameter("thickness", @i_param_path_link),"p"),
 													 rgb_color(seek_parameter("color", @i_param_path_link)),
 													 attr_string($svg_attr),
@@ -3495,6 +3500,14 @@ or a hashref of the configuration options.
 
 				TILEPLACE:
 
+					my $force_place;
+					# force the layer based on "layer" parameter value
+					if (my $layer_param = seek_parameter("layer",@param_path)) {
+						my $layer = seek_parameter($layer_param,$datum->{data}[0],$datum);
+						if(defined $tilelayers[$ideogram_idx][$layer]) {
+							$freelayer = $tilelayers[$ideogram_idx][$layer];
+						}
+					}
 					if ( !$freelayer ) {
 						my $overflow = seek_parameter( "layers_overflow", @param_path ) || $EMPTY_STR;
 						if ( $overflow eq "hide" ) {
@@ -4461,9 +4474,7 @@ sub draw_axis_break {
 	if (! $style_data) {
 		fatal_error("ideogram","undefined_axis_break_style",$style_id,$style_id);
 	}
-	my $radius_change =
-		$DIMS->{ideogram}{ $ideogram->{tag} }{radius} !=
-			$DIMS->{ideogram}{ $ideogram_next->{tag} }{radius};
+	my $radius_change =	$DIMS->{ideogram}{ $ideogram->{tag} }{radius} != $DIMS->{ideogram}{ $ideogram_next->{tag} }{radius};
 
 	my $thickness = unit_convert(
 															 from => unit_validate(
@@ -4728,12 +4739,12 @@ sub draw_ticks {
 		if($filter->{show_default} &&
 			 exists $filter->{filter}{$chr}{hide} && 
 			 $filter->{filter}{$chr}{hide}->cardinality < 1 ) {
-			printinfo("skipping",$chr,$tickdata->{spacing});
+			printdebug_group("tick","skipping",$chr,$tickdata->{spacing});
 			next;
 		}
 		if(! $filter->{show_default} &&
 			 ! $filter->{filter}{$chr}) {
-			printinfo("skipping",$chr,$tickdata->{spacing});
+			printdebug_group("tick","skipping",$chr,$tickdata->{spacing});
 			next;
 		}
 		my $tick_label_max;
@@ -5931,6 +5942,9 @@ sub register_chromosomes_radius {
     $DIMS->{ideogram}{ $ideogram->{tag} }{radius_outer}  ||= $ideogram->{radius_outer};
     $DIMS->{ideogram}{ $ideogram->{tag} }{thickness}     ||= $ideogram->{thickness};
     $DIMS->{ideogram}{ $ideogram->{tag} }{label}{radius} ||= unit_parse( $CONF{ideogram}{label_radius}, $ideogram );
+
+		$ideogram->{label_radius} = $DIMS->{ideogram}{ $ideogram->{tag} }{label}{radius};
+		#printinfo($ideogram->{label_radius});
   }
 }
 
@@ -6510,7 +6524,7 @@ sub ribbon {
 			$svg_colors .= sprintf( qq{ stroke: rgb(%d,%d,%d);}, rgb_color( $params{edgecolor} ) );
 			if ( rgb_color_opacity( $params{edgecolor} ) < 1 ) {
 				$svg_colors .= sprintf( qq{ stroke-opacity: %.3f;},
-																rgb_color_opacity( $params{edgecolor} ) );
+																1-rgb_color_opacity( $params{edgecolor} ) );
 			}
 		}
 
@@ -6529,7 +6543,7 @@ sub ribbon {
 			$svg_colors .= sprintf( qq{ fill: rgb(%d,%d,%d);}, rgb_color($svg_color) );
 			if ( rgb_color_opacity( $params{fillcolor} ) < 1 ) {
 				$svg_colors .= sprintf( qq{ opacity: %.3f;},
-																rgb_color_opacity( $params{fillcolor} ) );
+																1-rgb_color_opacity( $params{fillcolor} ) );
 			}
 		}
 		

@@ -126,8 +126,8 @@ sub read_data_file {
 	# for text and data tracks.
 
   my $rx = {
-						chr     => { rx => qr/^[\w.:&-]+$/,
-												 comment => "word with optional -.:&" },
+						chr     => { rx => qr/^[\w.:&-\|]+$/,
+												 comment => "word with optional -.:&|" },
 						start   => { rx => qr/^-?[\d,_]+$/,
 												 sx_from => qr/[,_]/,
 												 sx_to   => "",

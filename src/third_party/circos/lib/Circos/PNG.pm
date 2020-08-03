@@ -67,7 +67,7 @@ for my $f ( qw ( ) ) {
 
 sub draw_arc {
   my %params;
-  if( fetch_conf("debug_validate") ) {
+  if ( fetch_conf("debug_validate") ) {
 		%params = validate(@_,{
 													 point            => { type    => ARRAYREF },
 													 width            => 1,
@@ -84,16 +84,16 @@ sub draw_arc {
 		$params{angle_end}        ||= 360;
   }
   $params{height} ||= $params{width};
-  if(@{$params{point}} != 2) {
+  if (@{$params{point}} != 2) {
 		fatal_error("argument","list_size",current_function(),current_package(),2,int(@{$params{point}}));
   }
   printdebug_group("png","arc",@{$params{point}},@params{qw(width height angle_start angle_end)});
 
   # first fill the arc
-  if(my $color = $params{color}) {
+  if (my $color = $params{color}) {
 		#printinfo($color);
 		my $color_obj = aa_color($color,$IM,$COLORS);
-		if($params{angle_start} == 0 && $params{angle_end} == 360 && rgb_color_opacity($color) !=1) {
+		if ($params{angle_start} == 0 && $params{angle_end} == 360 && rgb_color_opacity($color) !=1) {
 			my $sections = 2*max(3,$params{width},$params{height});
 			# approximate a circle with a polygon, since GD's filledArc and filledEllipse
 			# don't work well with transparent colors
@@ -120,7 +120,7 @@ sub draw_arc {
 
 sub draw_polygon {
   my %params;
-  if( fetch_conf("debug_validate") ) {
+  if ( fetch_conf("debug_validate") ) {
 		%params = validate(@_,{
 													 polygon          => 1,
 													 color            => 0, # fetch_conf("default_color") || $default_color,
@@ -135,7 +135,7 @@ sub draw_polygon {
 
   printdebug_group("png","polygon",map {@$_} $params{polygon}->vertices);
 
-  if($params{pattern}) {
+  if ($params{pattern}) {
 		my ($color_idx,$tile);
 		if ($params{fill_color} ) {
 			$tile = Circos::fetch_colored_fill_pattern($params{pattern},$params{fill_color});
@@ -154,60 +154,60 @@ sub draw_polygon {
 }
 
 sub draw_line {
-  my %params;
-  if( fetch_conf("debug_validate") ) {
-    %params = validate(@_,{
-													 points           => { type    => ARRAYREF },
-													 color            => { default => fetch_conf("default_color") || $default_color  },
-													 thickness        => { default => 1 },
-		       });
-  } else {
-      %params = @_;
-      $params{color}            ||= fetch_conf("default_color") || $default_color;
-      $params{thickness}        ||= 1;
-  }
-  
-  if(@{$params{points}} != 4) {
-      fatal_error("argument","list_size",current_function(),current_package(),4,int(@{$params{points}}));
-  }
-  
-  printdebug_group("png","line",@{$params{points}},$params{color},$params{thickness});
-
-  stroke($params{thickness},$params{color},"line",@{$params{points}});
-}
-
-# -------------------------------------------------------------------
-sub draw_bezier {
-  my %params;
-  if( fetch_conf("debug_validate") ) {
-    %params = validate(@_,{
+	my %params;
+	if ( fetch_conf("debug_validate") ) {
+		%params = validate(@_,{
 													 points           => { type    => ARRAYREF },
 													 color            => { default => fetch_conf("default_color") || $default_color  },
 													 thickness        => { default => 1 },
 													});
-  } else {
+	} else {
 		%params = @_;
 		$params{color}            ||= fetch_conf("default_color") || $default_color;
 		$params{thickness}        ||= 1;
-  }
-  
-  if ( $params{thickness} > 100 ) {
+	}
+    
+	if (@{$params{points}} != 4) {
+		fatal_error("argument","list_size",current_function(),current_package(),4,int(@{$params{points}}));
+	}
+    
+	printdebug_group("png","line",@{$params{points}},$params{color},$params{thickness});
+    
+	stroke($params{thickness},$params{color},"line",@{$params{points}});
+}
+
+# -------------------------------------------------------------------
+sub draw_bezier {
+	my %params;
+	if ( fetch_conf("debug_validate") ) {
+		%params = validate(@_,{
+													 points           => { type    => ARRAYREF },
+													 color            => { default => fetch_conf("default_color") || $default_color  },
+													 thickness        => { default => 1 },
+													});
+	} else {
+		%params = @_;
+		$params{color}            ||= fetch_conf("default_color") || $default_color;
+		$params{thickness}        ||= 1;
+	}
+    
+	if ( $params{thickness} > 100 ) {
 		fatal_error("links","too_thick",$params{thickness});
-  } elsif ( $params{thickness} < 1 ) {
+	} elsif ( $params{thickness} < 1 ) {
 		fatal_error("links","too_thin",$params{thickness});
-  }
-  
-  # In the current implementation of gd (2.0.35) antialiasing is
-  # incompatible with thick lines and transparency. Thus, antialiased lines
-  # are available only when thickness=1 and the color has no alpha channel.
-	
-  printdebug_group("link","thickness",$params{thickness},"color",$params{color});
-	
-  my $bezier_poly_line = GD::Polyline->new();
-  for my $point ( @{$params{points}} ) {
+	}
+    
+	# In the current implementation of gd (2.0.35) antialiasing is
+	# incompatible with thick lines and transparency. Thus, antialiased lines
+	# are available only when thickness=1 and the color has no alpha channel.
+    
+	printdebug_group("link","thickness",$params{thickness},"color",$params{color});
+    
+	my $bezier_poly_line = GD::Polyline->new();
+	for my $point ( @{$params{points}} ) {
 		$bezier_poly_line->addPt(@$point);
-  }
-  stroke($params{thickness},$params{color},"polydraw",$bezier_poly_line);
+	}
+	stroke($params{thickness},$params{color},"polydraw",$bezier_poly_line);
 }
 
 # applies a stroke to a GD object drawn by function $fn
@@ -219,22 +219,24 @@ sub stroke {
 	my $color_obj;
 	$sc ||= fetch_conf("default_color") || $default_color;
 	my ($b,$bc,$buse);
-	if(fetch_conf("anti_aliasing") && $st == 1 && rgb_color_opacity($sc) == 1) {
+	if (fetch_conf("anti_aliasing") && $st == 1 && rgb_color_opacity($sc) == 1) {
+		#printinfo("strokeaa",$sc,$st,$fn);
 		$IM->setAntiAliased(fetch_color($sc));
 		$color_obj = gdAntiAliased;
 	} else {
+		#printinfo("stroke",$sc);
 		# When the element is thicker than round_brush_min_thickness, use a round brush instead
 		# of the default square one. This fixes jaggies on thick links.
 		$buse = fetch_conf("round_brush_use") && $st >= fetch_conf("round_brush_min_thickness");
-		if($buse) {
-			($b,$bc) = Circos::fetch_brush($st,$st,$sc);
-			$IM->setBrush($b);
+		if ($buse) {
+	    ($b,$bc) = Circos::fetch_brush($st,$st,$sc);
+	    $IM->setBrush($b);
 		} else {
-			$IM->setThickness($st) if $st > 1;
+	    $IM->setThickness($st) if $st > 1;
 		}
 		$color_obj = fetch_color($sc);
 	}
-	if($buse) {
+	if ($buse) {
 		$IM->$fn(@args,gdBrushed);
 	} else {
 		$IM->$fn(@args,$color_obj);

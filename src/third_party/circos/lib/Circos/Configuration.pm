@@ -643,7 +643,6 @@ sub repopulateconfiguration {
 sub parse_field {
 
 	my ($str,$key,$parent_node_name,$node,$curr) = @_;
-	my $delim    = "__";
 
 	if(! defined $str) {
 		printdumper($node); 
@@ -665,10 +664,11 @@ sub parse_field {
 	# conf(LEAF,LEAF,...)
 	$str = parse_conf_fn($str,$node,$curr);
 
-	# this is going to be deprecated
-	if( $str =~ /$delim([^_].+?)$delim/g ) {
-		fatal_error("configuration","deprecated","__FIELD__","var(FIELD)");
-	}
+	# this is now totally deprecated
+	# my $delim    = "__";
+	#if( $str =~ /$delim([^_].+?)$delim/g ) {
+	#error("configuration","deprecated","__FIELD__","var(FIELD)");
+	#}
 	
 	$str = eval_conf($str) if $str !~ /var\s*\(/ && (! defined $parent_node_name || $parent_node_name ne "rule");
 

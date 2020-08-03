@@ -55,9 +55,15 @@ circos - generate circular data visualizations
 
   # man page
   circos -man
- 
+
   # version
   circos -v
+
+=head1 SUPPORT
+
+For support please use the Google Group
+
+L<https://groups.google.com/forum/#!forum/circos-data-visualization>
 
 =head1 DESCRIPTION
 
@@ -99,7 +105,7 @@ C<<backgrounds>> are optional.
 
 To get started, refer to the quick guide tutorial.
 
-  L<http://www.circos.ca/documentation/tutorials/quick_guide>
+L<http://www.circos.ca/documentation/tutorials/quick_guide>
 
 A typical configuration file might look like this
  
@@ -384,7 +390,7 @@ debug groups (see below).
 
 Turn on debugging output for specific groups. For a list of groups, see
 
-  L<http://www.circos.ca/documentation/tutorials/configuration/debugging>
+L<http://www.circos.ca/documentation/tutorials/configuration/debugging>
 
 To add a group to the output prefix it with +. To remove it, with -.
 
@@ -466,7 +472,7 @@ For example, to keep the background white and anything that is black,
 
 For full documentation, see
 
-  L<http://www.circos.ca/documentation/tutorials>
+L<http://www.circos.ca/documentation/tutorials>
 
 =back
 
@@ -506,6 +512,7 @@ my $option_success = GetOptions(\%OPT,
 																'color_cache_rebuild',
 																'color_cache_static',
 																'randomcolor:s',
+																'wmmn:s',
 
 																'help',
 																'man',
@@ -569,7 +576,7 @@ Hive plots L<http://www.hiveplot.com>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2004-2015 Martin Krzywinski, all rights reserved.
+Copyright 2004-2017 Martin Krzywinski, all rights reserved.
 
 This script is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

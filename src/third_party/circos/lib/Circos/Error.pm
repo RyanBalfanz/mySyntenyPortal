@@ -66,12 +66,14 @@ $ERROR{color} =
     circular_defn => "You have a circular color definition in your <color> block. Color [%s] and [%s] refer to each other.\nYou can define one color in terms of another, such as\n red=255,0,0\n favourite=red\nbut you must avoid loops, such as\n red=favourite\n favourite=red",
     reserved_name_a => "You are trying to allocate color [%s] with definition [%s], but names ending in _aN are reserved for colors with transparency.",
     cannot_allocate => "Could not allocate color [%s] with definition [%s] (error: %s).",
-    bad_alpha => "Alpha value of [%s] cannot be used. Please use a range 0-1, where 0 is opaque and 1 is transparent.",
+    bad_alpha => "Color string [%s] alpha value [%s] must be in range [0,1], where 0 is opaque and 1 is transparent.",
     malformed_hsv => "HSV definition [%s] is not in the correct format. You must use\n h,s,v = 60,1,0.5\nor\n h,s,v,a = 0,1,0.5,100\nwhere a is the alpha channel (0-127), h is the hue (0-360), s is saturation (0-1) and v is the value (0-1).",
-    malformed_rgb => "RGB definition [%s] is not in the correct format. You must use\n r,g,b = 60,120,180\nor\n r,g,b,a = 60,120,180,100\nwhere a is the alpha channel (0-127), and r,g,b is in the range 0-255.",
+    bad_color_component => "Color space [%s] color definition [%s] is malformed. The component [%s] must be in range [%s-%s].",
+    malformed_rgb => "RGB definition [%s] is not in the correct format. You must use one of\n r,g,b\n r,g,b,a\n rgb(r,g,b)\n rgba(r,g,b,a)\n\nwhere a is the alpha channel (0-1), and r,g,b components are in the range 0-255.",
+    malformed_hex => "HEX definition [%s] is not in the correct format. You must use one of\n HEX\n hex(HEX)\nwhere HEX is a 6 character case-insensitive hexadecimal string (e.g. ff0099). No leading \# is required.",
     malformed_lch => "LCH definition [%s] is not in the correct format. You must use\n l,c,h = 60,50,180\nor\n l,c,h,a = 60,50,180,100\nwhere a is the alpha channel (0-127), and l,c is in the range 0 about 100 and h in the range 0 to 360.",
     bad_rgb_lookup => "Could not find a color with RGB value %d,%d,%d.",
- undef_value=>"Tried to apply color function [%s] to an undefined value",
+    undef_value=>"Tried to apply color function [%s] to an undefined value",
 };
 
 $ERROR{ideogram} =
@@ -319,67 +321,67 @@ $ERROR{system} =
 
 $ERROR{support} =
 {
-    googlegroup=>"If you are having trouble debugging this error, first read the best practices tutorial for helpful tips that address many common problems\n http://www.circos.ca/documentation/tutorials/reference/best_practices\nThe debugging facility is helpful to figure out what's happening under the hood\n http://www.circos.ca/documentation/tutorials/configuration/debugging\nIf you're still stumped, get support in the Circos Google Group. Please include this error and all your configuration and data files.\n http://groups.google.com/group/circos-data-visualization",
+    googlegroup=>"If you are having trouble debugging this error, first read the best practices tutorial for helpful tips that address many common problems\n http://www.circos.ca/documentation/tutorials/reference/best_practices\nThe debugging facility is helpful to figure out what's happening under the hood\n http://www.circos.ca/documentation/tutorials/configuration/debugging\nIf you're still stumped, get support in the Circos Google Group.\n http://groups.google.com/group/circos-data-visualization\nPlease include this error, all your configuration, data files and the version of Circos you're running (circos -v). Do not email me directly -- please use the group.",
 };
 
 sub error {
-    my ($cat,$errorid,@args) = @_;
-    my $error_text = $ERROR{$cat}{$errorid};
-    if(! defined $error_text) {
-			fatal_error("system","bad_error_name",$cat,$errorid);
-    }
-    if($error_text =~ /file\((.*)\)/) {
-			my $file = Circos::Utils::locate_file(file=>$1,name=>"error file",return_undef=>1);
-			if($file && open(F,$file)) {
-				$error_text = join("",<F>);
-				close(F);
-			} else {
-				$error_text = "...error text from [$1] could not be read...";
-			}
-    }
-    my (@text,$format);
-    my $undef_text = Circos::Configuration::fetch_conf("debug_undef_text") || "_undef_";
-    @args = map { defined $_ ? $_ : $undef_text } @args;
-    if($cat eq "warning") {
-			if(Circos::Configuration::fetch_conf("paranoid")) {
-				@text = ("WARNING *** "
-								 .
-								 ($GROUPERROR{$cat} ? uc $GROUPERROR{$cat} : $EMPTY_STR)
-								 .
-								 sprintf($error_text,@args));
-				#$format = 1;
-			} else {
-				printdebug_group("!circoswarning",uc $GROUPERROR{$cat},sprintf($error_text,@args));
-				return;
-			}
-    } else {
-			@text = ("*** CIRCOS ERROR ***",
-							 sprintf("     cwd: %s",cwd()),
-							 sprintf(" command: %s",join(" ",$0,$main::OPT{"_argv"})),
-							 $GROUPERROR{$cat} ? uc $GROUPERROR{$cat} : $EMPTY_STR,
-							 sprintf($error_text,@args),
-							 $ERROR{support}{googlegroup},
-							 "",
-							 "Stack trace:",
-							);
-			$format = 1;
-    }
-    if($format) {
-			my @text_fmt;
-			for my $t (@text) {
-				for my $line (split(/\n/, $t)) {
-					if ($line =~ /^\s/) {
-						push @text_fmt, Text::Format->new({leftMargin=>6,columns=>80,firstIndent=>0})->paragraphs($line);
-					} else {
-						push @text_fmt, Text::Format->new({leftMargin=>2,columns=>80,firstIndent=>0})->paragraphs($line);
-					}
+	my ($cat,$errorid,@args) = @_;
+	my $error_text = $ERROR{$cat}{$errorid};
+	if(! defined $error_text) {
+		fatal_error("system","bad_error_name",$cat,$errorid);
+	}
+	if($error_text =~ /file\((.*)\)/) {
+		my $file = Circos::Utils::locate_file(file=>$1,name=>"error file",return_undef=>1);
+		if($file && open(F,$file)) {
+			$error_text = join("",<F>);
+			close(F);
+		} else {
+			$error_text = "...error text from [$1] could not be read...";
+		}
+	}
+	my (@text,$format);
+	my $undef_text = Circos::Configuration::fetch_conf("debug_undef_text") || "_undef_";
+	@args = map { defined $_ ? $_ : $undef_text } @args;
+	if($cat eq "warning") {
+		if(Circos::Configuration::fetch_conf("paranoid")) {
+			@text = ("WARNING *** "
+							 .
+							 ($GROUPERROR{$cat} ? uc $GROUPERROR{$cat} : $EMPTY_STR)
+							 .
+							 sprintf($error_text,@args));
+			#$format = 1;
+		} else {
+			printdebug_group("!circoswarning",uc $GROUPERROR{$cat},sprintf($error_text,@args));
+			return;
+		}
+	} else {
+		@text = ("*** CIRCOS ERROR ***",
+						 sprintf("     cwd: %s",cwd()),
+						 sprintf(" command: %s",join(" ",$0,$main::OPT{"_argv"})),
+						 $GROUPERROR{$cat} ? uc $GROUPERROR{$cat} : $EMPTY_STR,
+						 sprintf($error_text,@args),
+						 $ERROR{support}{googlegroup},
+						 "",
+						 "Stack trace:",
+						);
+		$format = 1;
+	}
+	if($format) {
+		my @text_fmt;
+		for my $t (@text) {
+			for my $line (split(/\n/, $t)) {
+				if ($line =~ /^\s/) {
+					push @text_fmt, Text::Format->new({leftMargin=>6,columns=>80,firstIndent=>0})->paragraphs($line);
+				} else {
+					push @text_fmt, Text::Format->new({leftMargin=>2,columns=>80,firstIndent=>0})->paragraphs($line);
 				}
 			}
-			print "\n" . join("\n", @text_fmt);
-    } else {
-			print join(" ",@text)."\n";
-    }
+		}
+		print "\n" . join("\n", @text_fmt);
+	} else {
+		print join(" ",@text)."\n";
 	}
+}
 
 sub fake_error {
 	my $error_path = shift;
@@ -396,31 +398,31 @@ sub fake_error {
 		exit;
 	} elsif (! $name) {
 		printinfo("The following errors are available for category [$cat]");
-	for my $name (sort keys %{$ERROR{$cat}}) {
+		for my $name (sort keys %{$ERROR{$cat}}) {
 	    printinfo(" ",$name);
-	}
-	exit;	
-    } elsif (! $cat) {
-	my $found;
-	printinfo("The following categories contain the error ID [$name]");
-	for my $thiscat (sort keys %ERROR) {
-	    for my $thisname (sort keys %{$ERROR{$thiscat}}) {
-		if($name eq $thisname) {
-		    printinfo($thiscat,$name);
-		    $found = 1;
 		}
+		exit;	
+	} elsif (! $cat) {
+		my $found;
+		printinfo("The following categories contain the error ID [$name]");
+		for my $thiscat (sort keys %ERROR) {
+	    for my $thisname (sort keys %{$ERROR{$thiscat}}) {
+				if($name eq $thisname) {
+					printinfo($thiscat,$name);
+					$found = 1;
+				}
 	    }
+		}
+		printinfo("Could not find error name [$name] in any error category") if ! $found;
+		exit;
+	} else {
+		fatal_error($cat,$name, map { 0 } (1..10) );
 	}
-	printinfo("Could not find error name [$name] in any error category") if ! $found;
-	exit;
-    } else {
-	fatal_error($cat,$name, map { 0 } (1..10) );
-    }
 }
 
 sub fatal_error {
-    error(@_);
-    confess;
+	error(@_);
+	confess;
 }
 
 1;
