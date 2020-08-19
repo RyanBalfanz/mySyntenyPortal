@@ -87,7 +87,7 @@ def determine_command(launcher_args, qns_args, temp_dir):
         cmd += "docker-compose -f docker-compose.yml run qns "
     else:
         msg += "Running QNS within venv...\n"
-        cmd += "./qns "
+        cmd += "./qns.py "
 
     args_for_qns = add_custom_args(qns_args, temp_dir)
 
@@ -100,7 +100,6 @@ def move_files(dir):
     """
 
     qns_output = os.listdir(dir)
-
     for file in qns_output:
         file_path = dir + '/' + file
         if file.endswith(".sizes") or file.endswith(".synteny"):
