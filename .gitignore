@@ -5,6 +5,8 @@
 
 configurations/
 
+src/
+
 qns/
 
 scripts/publish_template/htdocs/img
