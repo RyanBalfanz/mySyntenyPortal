@@ -8,7 +8,7 @@ docker-compose exec sweb perl ./mySyntenyPortal build -conf ./configurations/qns
 echo "Check here for diagram: http://localhost:9090/mySyntenyPortal/htdocs/syncircos.php"
 
 # Wait for user input to stop container
-read -rsn1 -p"Press any key to exit";echo
+read -rsn1 -p"Press any key to terminate mySyntenyPortal";echo
 
 # Stop container in background, so user can access command line sooner
 docker-compose stop -t 2 sweb > /dev/null 2>&1 &

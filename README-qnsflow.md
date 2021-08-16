@@ -69,13 +69,30 @@ The `-d` tag tells the program to run QNS with docker compose, if omitted, virtu
 
 Note that this script expects the filenames of files in the /qns directory, therefore the full path is not required. Also, note that the .tab file is optional, the diagram will still generate without them.
 
-**TODO: review this, maybe it makes more sense to have path from `mySyntenyPortal/` instead of `qns/`**
+## What's going on:
+
+run-from-qns is running the QNS program with the arguments:
+
+`./qns.py -m --export-config -v 0 -o <output_dir> <links and/or karyotype files>`
+
+These arguments place a mySyntenyPortal links file and .conf files in the target output directory. This
+script creates an output dir (user configurable) and then copies those files into the appropiate 
+directories for MSP. It then runs kick-off-docker.sh to launch MSP.
 
 ### Example Usage
 Here are some example usages:
 
-`./run-from-qns Tse_Allig.links -c Tse-karyotype.tab -c Allig-karyotype.tab`  
-`./run-from-qns Tse_Goph.links -c Tse-karyotype.tab -c Goph-karyotype.tab`  
+Run QNS, using "chel_gallus.links" in the qns directory, place output in $PWD/qns_output, and run 
+mySyntenyPortal:
+`./run-from-qns --run-qns -i qns_output chel_gallus.links`
+
+Do not run QNS, take exising MSP files from qns_output and run:
+`./run-from-qns -i qns_output`
+
+Run QNS and clean up everything:
+`./run-from-qns --run-qns -i qns_output --clean-qns-output chel_gallus.links`
+`./run-from-qns --run-qns --clean-qns-output Tse_Allig.links -c Tse-karyotype.tab -c Allig-karyotype.tab`  
+`./run-from-qns --run-qns --clean-qns-output Tse_Goph.links -c Tse-karyotype.tab -c Goph-karyotype.tab`  
   
 ## Notes
 `./run-from-qns` currently forcefully passes the flags `-o ./output/ -v 0 -m --export-config`.

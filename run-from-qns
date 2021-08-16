@@ -6,15 +6,13 @@ import tempfile
 import os
 from pathlib import Path
 import subprocess
+from shutil import copyfile
 
 from typing import List, Union
 
 import sys
 
 QNS_DIR = "qns"
-
-
-
 
 def handle_parser():
     """
@@ -29,10 +27,15 @@ def handle_parser():
                                  help="Describes whether or not to use docker-compose to run qns.",
                                  dest="docker")
 
-    launcher_parser.add_argument("--clear-cache",
-                                 action="store_true",
-                                 help="Describes whether or not to delete website data after run.",
-                                 dest="clear_cache")
+    launcher_parser.add_argument('--run-qns',
+                                 action='store_true',
+                                 default=False,
+                                 dest="run_qns")
+
+    launcher_parser.add_argument('--clean-qns-output',
+                                 action='store_true',
+                                 default=False,
+                                 dest="clean_qns_output")
 
     launcher_parser.add_argument('-v', '--verbosity',
                                  help=argparse.SUPPRESS,
@@ -40,16 +43,18 @@ def handle_parser():
                                  type=int,
                                  dest='verbosity')
 
-    launcher_parser.add_argument('-o', '--output-dir',
-                               help=argparse.SUPPRESS,
-                               action='store', type=str, dest='output_directory',
-                               default=os.getcwd())
+
+    launcher_parser.add_argument('-i', '--source-dir',
+                                 action='store',
+                                 type=str,
+                                 dest='input_directory',
+                                 help="mySyntenyPortal input directory (qns output directory)",
+                                 default="qns_output")
 
     return launcher_parser
 
 
-def get_temp_dir():
-    return tempfile.TemporaryDirectory()
+
 
 
 def add_custom_args(qns_args: List[str], temp_output_folder: Path) -> List[str]:
@@ -103,9 +108,15 @@ def move_files(dir):
     for file in qns_output:
         file_path = dir + '/' + file
         if file.endswith(".sizes") or file.endswith(".synteny"):
-            os.rename(file_path, "../data/example_inputs/" + file)
+            target = f"{root_dir}/data/example_inputs/" + file
+            copyfile(file_path, target)
+            print(f"Moving {file_path} to {target}")
+
         elif file.endswith(".conf"):
-            os.rename(file_path, "../configurations/" + file)
+            target = f"{root_dir}/configurations/" + file
+            copyfile(file_path, target)
+            print(f"Moving {file_path} to {target}")
+
 
 
 # Start Here
@@ -114,26 +125,42 @@ if not qns_found:
     sys.stderr.write("QNS directory not found, aborting.\n")
     sys.exit(1)
 
-
 print(QNS_DIR)
-with get_temp_dir() as temp_dir:
-    os.chdir(QNS_DIR)
-    parser = handle_parser()
-    launcher_args, qns_args = parser.parse_known_args()
+root_dir = os.getcwd()
+# with get_temp_dir() as temp_dir:
 
-    cmd = determine_command(launcher_args, qns_args, temp_dir)
-    print(cmd)
-    # Path("output").mkdir(parents=True, exist_ok=True)
+
+print(f"Current directory: {os.getcwd()}")
+
+parser = handle_parser()
+launcher_args, qns_args = parser.parse_known_args()
+input_directory = os.path.join(root_dir, launcher_args.input_directory)
+
+cmd = determine_command(launcher_args, qns_args, input_directory)
+print (f"Making directory {input_directory}")
+Path(input_directory).mkdir(parents=True, exist_ok=True)
+if launcher_args.run_qns:
+    print(f"Chdir to {QNS_DIR}")
+    os.chdir(QNS_DIR)
+    print(f"Running QNS command: {cmd}")
     sucess, output = run_command(cmd)
     if not sucess:
+        print(f"Running QNS command failed. Output:")
+
         print(output)
+        sys.exit(1)
     else:
-        move_files(temp_dir)
-        os.chdir("..")
+        print(f"Running QNS command Succeeded.")
 
-        print("Check here for diagram: http://localhost:9090/mySyntenyPortal/htdocs/syncircos.php")
-        run_command("./kick-off-docker.sh")
 
-        if launcher_args.clear_cache:
-            run_command("rm -rf data/test")
-            print("\nRemoved Cache stored at data/test...")
+print(f"Current directory: {os.getcwd()}")
+move_files(input_directory)
+
+print("Check here for diagram: http://localhost:9090/mySyntenyPortal/htdocs/syncircos.php")
+print("Running kick-off-docker.sh")
+os.chdir(root_dir)
+run_command(f"{root_dir}/kick-off-docker.sh")
+
+if launcher_args.clean_qns_output:
+    run_command(f"rm -rf {input_directory}")
+    print(f"\nRemoved Cache stored at {input_directory}...")
