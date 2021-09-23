@@ -15,6 +15,20 @@ The goal of QNS-MSP is to integrate the files generated from qns directly into M
 
 ## Installation
 
+## Quickstart/cliff notes
+  Generate MySyntenyPortal output files from QNS per the qns project options.
+  
+`./qns.py -m --export-config -v 0 -o <output_dir> <links and/or karyotype files>`
+
+This will create a .conf file, a .synteny file, and a .sizes file. The .conf file
+will have pointers to the .synteny file.
+
+Once these files are generated, launch the dockerized MySyntenyPortal with:
+
+`./run-from-qns -i qns_output`
+
+
+
 ### General Setup
 
 Currently this project involves a combination of two existing projects.  

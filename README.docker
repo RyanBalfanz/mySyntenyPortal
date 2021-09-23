@@ -1,11 +1,7 @@
+obsolete - 9/22/21
+
 Patch, by running patch-source.sh.
 
-First, build the docker image with build-docker.sh.
-
-Once that's complete, edit run-docker.sh to launch docker on the host port of your choice.
-Currnetly set to 9090.
-
-run "run-docker.sh". 
 
 At the prompt, build myCircos, with 
 
