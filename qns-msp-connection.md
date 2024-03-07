@@ -22,8 +22,10 @@ Copy QNS_DIRECTORY/MSP_INPUT_DIRECTORY/qns.conf to the directory MSP_DIRECTORY/c
 
 if it doesn't exist, create MSP_DIRECTORY/data
 if it doesn't exist, create MSP_DIRECTORY/data/example_inputs.
-
-copy QNS_DIRECTORY/MSP_INPUT_DIRECTORY/* to QNS_DIRECTORY/MSP_INPUT_DIRECTORY
+# wrong?
+# copy QNS_DIRECTORY/MSP_INPUT_DIRECTORY/* to QNS_DIRECTORY/MSP_INPUT_DIRECTORY
+cp QNS_DIRECTORY/MSP_INPUT_DIRECTORY/*.synteny MSP_DIRECTORY/data
+cp QNS_DIRECTORY/MSP_INPUT_DIRECTORY/*.sizes MSP_DIRECTORY/data
 
 
 We run MySyntenyPortal in docker. We mount $(PWD) (aka: this directory) as /code inside the docker.
